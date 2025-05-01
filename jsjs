@@ -1,0 +1,240 @@
+function injectCssDirectly() {
+    try {
+
+        var req = new XMLHttpRequest();
+        req.open("GET", Xrm.Utility.getGlobalContext().getClientUrl() + "/api/data/v9.1/up_customthemes?$select=up_buttoncolor,up_buttonhovercolor,up_bold,up_buttontype,up_fieldcolor,up_sectioncolor&$filter=(up_selectedtheme eq true and statecode eq 0)", true);
+        req.setRequestHeader("OData-MaxVersion", "4.0");
+        req.setRequestHeader("OData-Version", "4.0");
+        req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        req.setRequestHeader("Accept", "application/json");
+        req.setRequestHeader("Prefer", "odata.include-annotations=*");
+        req.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                req.onreadystatechange = null;
+                if (this.status === 200) {
+                    var results = JSON.parse(this.response);
+                    console.log(results);
+                    for (var i = 0; i < results.value.length; i++) {
+                        var result = results.value[i];
+                        // Columns
+                        var up_customthemeid = result["up_customthemeid"]; // Guid
+                        var up_buttoncolor = "#"+result["up_buttoncolor"]; // Text
+                        var up_buttonhovercolor = "#"+result["up_buttonhovercolor"]; // Text
+                        var up_buttontype = result["up_buttontype"]; // Choice
+                        var up_buttontype_formatted = result["up_buttontype@OData.Community.Display.V1.FormattedValue"];
+                        var up_fieldcolor = "#"+result["up_fieldcolor"]; // Text
+                        var up_sectioncolor = "#"+result["up_sectioncolor"]; // Text
+                        var up_bold = result["up_bold"]; // Boolean
+
+
+                        const parentDoc = window.top.document;
+
+                        
+                        // ایجاد عنصر <style>
+                        const styleElement = parentDoc.createElement("style");
+                        styleElement.id = "me_custom_styles";
+                        if(up_buttontype==1){
+                        styleElement.innerHTML = `
+                            li.ms-crm-CommandBarItem > span {align-items: center; background: ${up_buttoncolor}; border: 0 solid ${up_buttoncolor}; box-shadow: 0 4px 6px -1px rgba(31, 29, 29, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.06); box-sizing: border-box; color: ${up_buttoncolor}; display: inline-flex; font-family: Inter, sans-serif; font-size: 1rem; font-weight: 700; height: 56px; justify-content: center; line-height: 24px; overflow-wrap: break-word; padding-bottom: 25px; padding-inline: 24px; text-decoration: none; width: auto;border-radius: 8px; cursor: pointer;user-select: none; -webkit-user-select: none; touch-action: manipulation;}          
+                            li.ms-crm-CommandBarItem > span:hover {background-color: ${up_buttonhovercolor};}
+                            .ms-crm-commandbar-hoveredOver{background-color: ${up_buttonhovercolor} !important; border-color: ${up_buttonhovercolor} !important;}
+                            `;
+                        }
+                        else if(up_buttontype==2){
+                            
+                            styleElement.innerHTML = `
+                            li.ms-crm-CommandBarItem > span {background-color: ${up_buttoncolor};height: 30px;border-radius: 3px;border: #22282c;box-shadow: rgba(255, 255, 255, .7) 0 1px 0 0 inset;box-sizing: border-box;color: #39739d;cursor: pointer;display: inline-block;font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;font-size: 13px;font-weight: 400;line-height: 1.15385;margin: 0;outline: none;padding: 8px .8em;position: relative;text-align: center;text-decoration: none;user-select: none;-webkit-user-select: none;touch-action: manipulation;vertical-align: baseline;white-space: nowrap;}
+                            li.ms-crm-CommandBarItem > span:hover,li.ms-crm-CommandBarItem > span:focus {background-color: ${up_buttonhovercolor};color: #2c5777;}
+                            li.ms-crm-CommandBarItem > span:focus {box-shadow: 0 0 0 4px rgba(0, 149, 255, .15);}
+                            li.ms-crm-CommandBarItem > span:active {background-color: #a0c7e4;box-shadow: none;color: #2c5777;}
+                            li.ms-crm-CommandBarItem > span img {margin-right: 10px; /* فاصله دادن آیکون از متن */ margin-bottom: 15px;vertical-align: middle; /* تنظیم موقعیت آیکون */}    
+                            .ms-crm-commandbar-hoveredOver{background-color: ${up_buttonhovercolor} !important; border-color: ${up_buttonhovercolor} !important;}
+                            `;
+                        }
+                        else if(up_buttontype==3){
+                            
+                            styleElement.innerHTML = `
+                            li.ms-crm-CommandBarItem > span {padding-top: 13px !important;align-items: center;appearance: none;background-color: ${up_buttoncolor};border: 1px solid #dbdbdb;border-radius: .375em;box-shadow: none;box-sizing: border-box;color: #363636;cursor: pointer;display: inline-flex;font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;font-size: 1rem;height: 30px;justify-content: center;line-height: 1.5;padding: calc(.5em - 1px) 1em;position: relative;text-align: center;user-select: none;-webkit-user-select: none;touch-action: manipulation;vertical-align: top;white-space: nowrap;}
+                            li.ms-crm-CommandBarItem > span:active {border-color: #4a4a4a;outline: 0;}
+                            li.ms-crm-CommandBarItem > span:focus {border-color: #485fc7;outline: 0;}
+                            li.ms-crm-CommandBarItem > span:hover {background-color: ${up_buttonhovercolor};}
+                            li.ms-crm-CommandBarItem > span:focus:not(:active) {box-shadow: rgba(72, 95, 199, .25) 0 0 0 .125em;}  
+                            .ms-crm-InlineEditLabel {padding-left: 100px;}
+                            .ms-crm-commandbar-hoveredOver{background-color: ${up_buttonhovercolor} !important; border-color: ${up_buttonhovercolor} !important;}
+                            `;
+                        }
+                         
+                         if(up_sectioncolor||up_fieldcolor){
+                            injectBackgroundColorStyleInto(up_sectioncolor,up_fieldcolor,up_bold);
+                         }
+                         changeLiBackgroundColor();
+                        // اضافه کردن به <head>
+                        parentDoc.head.appendChild(styleElement);
+
+                        //console.log(`✅ استایل‌های سفارشی با مقدار سایه: "" به CRM اعمال شد.`);
+                    }
+                } else {
+                    console.log(this.responseText);
+                }
+            }
+        };
+        req.send();        
+    } catch (e) {
+        console.error("❌ خطا در افزودن استایل‌های سفارشی:", e);
+    }
+}
+    function injectBackgroundColorStyleInto(sectioncolor,fieldcolor,bold) {
+    let iframes = window.top.document.querySelectorAll('iframe');
+
+    iframes.forEach(function(iframe) {
+        iframe.onload = function () {
+            const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+            if (!innerDoc) {
+                console.error("❌ نمی‌توان به سند داخلی دسترسی پیدا کرد.");
+                return;
+            }
+            // بررسی اینکه استایل قبلاً تزریق شده یا خیر
+            if (innerDoc.getElementById("custom_background_style")) {
+                //console.log("⚠️ استایل قبلاً اعمال شده است، از اجرای مجدد جلوگیری شد.");
+                return; // خروج از تابع، استایل قبلاً اضافه شده است
+            }
+            if (innerDoc.getElementById("custom_field_style")) {
+                //console.log("⚠️ استایل قبلاً اعمال شده است، از اجرای مجدد جلوگیری شد.");
+                return; // خروج از تابع، استایل قبلاً اضافه شده است
+            }
+            if(sectioncolor){
+            // بررسی وجود یک عنصر <style> برای استایل‌های مورد نظر (برای جلوگیری از تزریق تکراری)
+                if (!innerDoc.getElementById("custom_background_style")) {
+                    const styleElement = innerDoc.createElement("style");
+                    styleElement.id = "custom_background_style";
+                    styleElement.innerHTML = `
+                        /* اضافه کردن پس‌زمینه دلخواه به المان‌های ms-crm-FormSection */
+                        .refresh-form table.ms-crm-FormSection {
+                            background-color:${sectioncolor} !important;
+                        }
+                        .ms-crm-InlineEditLabel div.ms-crm-Inline-GradientMask, .ms-crm-Inline-Value div.ms-crm-Inline-GradientMask {
+                            background: ${sectioncolor} !important;
+                        }                                                            
+                    `;
+                    if (innerDoc.head) {
+                        innerDoc.head.appendChild(styleElement);
+                    } else {
+                        const head = innerDoc.createElement("head");
+                        head.appendChild(styleElement);
+                        innerDoc.documentElement.insertBefore(head, innerDoc.documentElement.firstChild);
+                    }
+                    console.log("✅ قانون CSS مربوط به پس‌زمینه به آیفریم تزریق شد.");
+                }
+            }
+            if(fieldcolor){
+                if (innerDoc.getElementById("custom_field_style") === null) {
+                    const styleElement = innerDoc.createElement("style");
+                    styleElement.id = "custom_field_style";
+                    if(bold==false){
+                        styleElement.innerHTML = `
+                        /* تغییر استایل لیبل‌های Inline Edit */
+                            .ms-crm-InlineEditLabel span:first-child {
+                            color: ${fieldcolor} !important;                            
+                            font-size: 14px !important;                       
+                        }                        
+                            label.ms-crm-List-Sortable {
+                            color:${fieldcolor} !important; /* افزودن پس‌زمینه دلخواه */                         
+                        }
+                            label.ms-crm-List-Sortable {
+                            color:${fieldcolor} !important; /* افزودن پس‌زمینه دلخواه */                         
+                        }                                                                
+                    `;
+                    }
+                    else if(bold==true){
+                        styleElement.innerHTML = `                        
+                            .ms-crm-InlineEditLabel span:first-child {
+                            color: ${fieldcolor} !important;
+                            font-weight: bold !important;
+                            font-size: 14px !important;                       
+                        }
+                            label.ms-crm-List-Sortable {
+                            color:${fieldcolor} !important; /* افزودن پس‌زمینه دلخواه */                         
+                        }
+                            label.ms-crm-List-Sortable {
+                            color:${fieldcolor} !important; /* افزودن پس‌زمینه دلخواه */                         
+                        }                                                                   
+                    `;
+                    }                    
+                    // اضافه کردن عنصر style به head سند داخلی
+                    // توجه کنید که head ممکن است وجود نداشته باشد، پس در صورت نیاز ایجادش کنید
+                    if (innerDoc.head) {
+                        innerDoc.head.appendChild(styleElement);
+                    } else {
+                        // در صورتی که head وجود ندارد، آن را ایجاد کرده و اضافه می‌کنیم
+                        const head = innerDoc.createElement("head");
+                        head.appendChild(styleElement);
+                        innerDoc.documentElement.insertBefore(head, innerDoc.documentElement.firstChild);
+                    }
+                    //console.log("✅ استایل‌های سفارشی به المان‌های ms-crm-InlineEditLabel تزریق شدند.");
+                }
+            }
+        };
+
+        // در صورتی که آیفریم به طور کامل بارگذاری شده باشد، تابع onload را فراخوانی می‌کنیم
+        if (iframe.contentDocument && iframe.contentDocument.readyState === "complete") {
+            iframe.onload();
+        }
+    });
+
+    }
+function changeLiBackgroundColor() {
+        // دریافت تمام `li` هایی که `id` آن‌ها شامل مقدار `searchString` است
+        const listItems =window.top.document.querySelectorAll('li[id*="CustomizeUI.Button"]')
+    
+        listItems.forEach(li => {
+            const span = li.querySelector("span");   
+            if (span) {
+                li.style.padding = "0px";  // حذف پدینگ
+                li.style.margin = "0px"; 
+                li.style.height = "0px"; 
+                li.style.width = "0px"; 
+                span.style.backgroundColor = "white";
+                span.style.borderColor= "white";
+                span.style.padding = "0px";  // حذف پدینگ
+                span.style.margin = "0px"; 
+            }
+        });
+}
+function loadJQueryAndInjectCss() {
+     if (typeof window.jQuery === "undefined") {
+         // لود کردن jQuery از Web Resource
+         const jqScript = document.createElement("script");
+         jqScript.src = "/WebResources/me_JQuery";
+         jqScript.onload = () => {
+             window.$ = window.jQuery;
+
+             injectCssDirectly();
+         };
+         document.head.appendChild(jqScript);
+     } else {       
+         injectCssDirectly();
+     }
+ }
+
+function observeDomChanges() {
+    const observer = new MutationObserver(() => {
+        loadJQueryAndInjectCss();
+    });
+
+    observer.observe(window.top.document.body, {
+        childList: true,
+        subtree: true,
+    });
+
+    // اجرای اولیه
+    loadJQueryAndInjectCss();
+}
+
+// اجرای اصلی
+if (window.top === window.self) {
+    if (document.readyState === "complete") {
+        observeDomChanges();
+    } else {
+        window.addEventListener("load", observeDomChanges);
+    }
+}
